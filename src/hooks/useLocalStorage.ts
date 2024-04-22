@@ -5,8 +5,10 @@ export default function useLocalStorage<T>(
   initialValue: T | (() => T),
 ) {
   const [value, setValue] = useState<T>(() => {
-    const jsonValue = localStorage.getItem(key);
-    if (jsonValue != null) return JSON.parse(jsonValue);
+    if (typeof window !== "undefined") {
+      const jsonValue = localStorage.getItem(key);
+      if (jsonValue != null) return JSON.parse(jsonValue);
+    }
 
     if (typeof initialValue === "function") {
       return (initialValue as () => T)();
@@ -16,7 +18,9 @@ export default function useLocalStorage<T>(
   });
 
   useEffect(() => {
-    localStorage.setItem(key, JSON.stringify(value));
+    if (typeof window !== "undefined") {
+      localStorage.setItem(key, JSON.stringify(value));
+    }
   }, [key, value]);
 
   return [value, setValue] as [typeof value, typeof setValue];
